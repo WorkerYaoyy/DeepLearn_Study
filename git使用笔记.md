@@ -1,3 +1,5 @@
+语句:
+
 ```powershell
 git init
 # 替换为你的用户名
@@ -13,3 +15,6 @@ git switch name #切换回分支
 git push . 
 ```
 
+注意:
+
+git add之后不能直接push必须git commit后由工作区进入本地仓库后才可上传至GitHub，否则会出现”Everything up-to-date“没东西可以更新。
