@@ -18,3 +18,7 @@
 
 
 
+2026.7.14
+
+今天学习了线性回归相关的知识点,了解了梯度下降，并更新了相关的代码<u>[linear_regression_study.py](linear_regression_study.py)</u> 
+
