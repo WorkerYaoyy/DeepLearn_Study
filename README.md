@@ -20,8 +20,4 @@
 
 2026.7.14
 
-今天学习了线性回归相关的知识点,了解了梯度下降，并更新了相关的代码
-
-1.自己写代码实现线性回归<u>[linear_regression_study.py](linear_regression_study.py)</u> 
-
-2.利用深度学习框架实现 [框架实现线性回归.py](框架实现线性回归.py) 
+今天学习了线性回归相关的知识点,了解了梯度下降，并更新了相关的代码1.自己写代码实现线性回归<u>[linear_regression_study.py](linear_regression_study.py)</u> 2.利用深度学习框架实现 [框架实现线性回归.py](框架实现线性回归.py) 
