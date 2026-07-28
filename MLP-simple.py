@@ -10,10 +10,10 @@ class Net(nn.Module):
         self.num_inputs = num_inputs
         self.num_hiddens = num_hiddens
         self.num_outputs = num_outputs
-        # 初始化权重和偏置
-        self.W1 = nn.Parameter(torch.randn(num_inputs, num_hiddens) * 0.01)
+        # He/Kaiming 初始化（适配ReLU），避免梯度消失
+        self.W1 = nn.Parameter(torch.randn(num_inputs, num_hiddens) * (2.0 / num_inputs) ** 0.5)
         self.b1 = nn.Parameter(torch.zeros(num_hiddens))
-        self.W2 = nn.Parameter(torch.randn(num_hiddens, num_outputs) * 0.01)
+        self.W2 = nn.Parameter(torch.randn(num_hiddens, num_outputs) * (2.0 / num_hiddens) ** 0.5)
         self.b2 = nn.Parameter(torch.zeros(num_outputs))
 
     # 定义前向传播
@@ -39,7 +39,7 @@ def train_epoch(net, train_iter, loss, optimizer):
         l = loss(y_hat, y)
         # 反向传播更新参数
         optimizer.zero_grad()
-        l.sum().backward()
+        l.mean().backward()
         optimizer.step()
         # 统计损失与精度
         total_loss += l.sum().item()
@@ -77,7 +77,7 @@ def train(net, train_iter, test_iter, loss, num_epochs, optimizer):
 
 
 # 手动实现预测可视化（替代d2l.predict_ch3）
-def predict_show(net, test_iter, n=6):
+def predict_show(net, test_iter, n=8):
     net.eval()
     labels = ['t-shirt', 'trouser', 'pullover', 'dress', 'coat',
               'sandal', 'shirt', 'sneaker', 'bag', 'ankle boot']
@@ -86,15 +86,20 @@ def predict_show(net, test_iter, n=6):
             y_hat = net(X)
             preds = torch.argmax(y_hat, dim=1)
             break
-    images = X[:n].reshape(n, 28, 28)
-    trues = y[:n]
-    pred_res = preds[:n]
-    fig, axes = plt.subplots(1, n, figsize=(10, 2))
+    # 转到CPU便于matplotlib绘图
+    images = X[:n].cpu().reshape(n, 28, 28)
+    trues = y[:n].cpu()
+    pred_res = preds[:n].cpu()
+    fig, axes = plt.subplots(1, n, figsize=(14, 2.5))
     for i in range(n):
         axes[i].imshow(images[i], cmap='gray')
-        axes[i].set_title(f'{labels[trues[i]]}\n{labels[pred_res[i]]}')
+        # 正确预测用绿色标题，错误预测用红色标题
+        color = 'green' if trues[i] == pred_res[i] else 'red'
+        axes[i].set_title(f'真实: {labels[trues[i]]}\n预测: {labels[pred_res[i]]}',
+                          color=color, fontsize=9)
         axes[i].axis('off')
     plt.tight_layout()
+    fig.suptitle('绿色=正确  红色=错误', fontsize=12, y=1.02)
 
 
 if __name__ == '__main__':
