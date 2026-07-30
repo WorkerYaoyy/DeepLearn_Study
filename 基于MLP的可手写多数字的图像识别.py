@@ -96,7 +96,7 @@ else:
 # 4. 手写识别 GUI
 # ============================================================
 class HandwritingRecognizer:
-    def __init__(self, model, canvas_size=280, pen_width=15, eraser_width=30):
+    def __init__(self, model, canvas_size=420, pen_width=22, eraser_width=45):
         self.model = model
         self.model.eval()
         self.canvas_size = canvas_size
@@ -111,7 +111,7 @@ class HandwritingRecognizer:
 
         # 主窗口
         self.window = tk.Tk()
-        self.window.title("手写数字识别 — 左键画 | 右键擦 | 空格识别 | C 清空")
+        self.window.title("手写数字识别 左键画 右键擦 空格识别 C清空")
 
         # 画布（白底）
         self.canvas = tk.Canvas(
@@ -123,7 +123,7 @@ class HandwritingRecognizer:
         # 结果标签
         self.result_label = tk.Label(
             self.window,
-            text="✏️ 左键画数字  |  🧹 右键擦除  |  空格识别  |  C 清空",
+            text="左键画数字 右键擦除 空格识别 C 清空",
             font=("Microsoft YaHei", 14),
         )
         self.result_label.pack(pady=5)
@@ -226,7 +226,7 @@ class HandwritingRecognizer:
         H, W = binary.shape
         visited = np.zeros((H, W), dtype=bool)
         regions = []
-        min_pixels = 30                                     # 忽略太小的噪点
+        min_pixels = 70                                     # 忽略太小的噪点（随画布等比放大）
 
         for y in range(H):
             for x in range(W):
@@ -260,7 +260,7 @@ class HandwritingRecognizer:
         digits = []
         for (x1, y1, x2, y2) in regions:
             # 加一点 padding，防笔画贴边被截断
-            pad = 4
+            pad = 6
             x1 = max(0, x1 - pad)
             y1 = max(0, y1 - pad)
             x2 = min(W - 1, x2 + pad)
@@ -377,15 +377,18 @@ class HandwritingRecognizer:
             axes[0, col].axis("off")
 
         # ===== 第二行：每个数字的 28×28 模型输入 =====
+        sum=""
         for i, ((bbox, crop, tensor), (pred, conf)) in enumerate(zip(tensors, results)):
             img_28 = tensor.view(28, 28).numpy()
             axes[1, i].imshow(img_28, cmap="gray")
             color = "green" if conf > 0.8 else "red"
             axes[1, i].set_title(f"#{i+1}: {pred} ({conf:.1%})", color=color)
             axes[1, i].axis("off")
-
+            sum+=str(pred)
+        print(sum)
         plt.tight_layout()
         plt.show()
+
 
     def run(self):
         self.window.mainloop()
@@ -395,5 +398,5 @@ class HandwritingRecognizer:
 # 5. 启动
 # ============================================================
 if __name__ == "__main__":
-    app = HandwritingRecognizer(model, canvas_size=280, pen_width=15)
+    app = HandwritingRecognizer(model, canvas_size=420, pen_width=22)
     app.run()
